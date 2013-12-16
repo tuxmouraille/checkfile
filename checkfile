@@ -103,9 +103,9 @@ parser.add_option("-s", "--sum",
                   dest="hashsum",
                   help="Original hash sum to file to check")
 
-parser.add_option("-t", "--text",
-                  dest="textfile",
-                  help="Use a text file with hashes of multi files")
+#~ parser.add_option("-t", "--text",
+                  #~ dest="textfile",
+                  #~ help="Use a text file with hashes of multi files")
 
 (options, args) = parser.parse_args()
 
