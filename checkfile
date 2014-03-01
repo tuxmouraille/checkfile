@@ -4,80 +4,18 @@
 import hashlib, os
 from optparse import OptionParser
 
-
-def hasher(alghash, filepath):
-    alghash = alghash.upper()
-    
-    if alghash == 'MD5' :
-        md5 = hashlib.md5()
-        with open(filepath,'rb') as f:
-            for chunk in iter(lambda: f.read(128*md5.block_size), b''):
-                 md5.update(chunk)
-        newhash = md5.hexdigest()
-
-    elif alghash == 'SHA1' :
-        sha1 = hashlib.sha1()
-        with open(filepath,'rb') as f:
-            for chunk in iter(lambda: f.read(128*sha1.block_size), b''):
-                 sha1.update(chunk)
-        newhash = sha1.hexdigest()
-
-    elif alghash == 'SHA224' :
-        sha224 = hashlib.sha224()
-        with open(filepath,'rb') as f:
-            for chunk in iter(lambda: f.read(128*sha224.block_size), b''):
-                 sha224.update(chunk)
-        newhash = sha224.hexdigest()
-
-    elif alghash == 'SHA256' :
-        sha256 = hashlib.sha256()
-        with open(filepath,'rb') as f:
-            for chunk in iter(lambda: f.read(128*sha256.block_size), b''):
-                 sha256.update(chunk)
-        newhash = sha256.hexdigest()
-
-    elif alghash == 'SHA384' :
-        sha384 = hashlib.sha384()
-        with open(filepath,'rb') as f:
-            for chunk in iter(lambda: f.read(128*sha384.block_size), b''):
-                 sha384.update(chunk)
-        newhash = sha384.hexdigest()
-
-    elif alghash == 'SHA512' :
-        sha512 = hashlib.sha512()
-        with open(filepath,'rb') as f:
-            for chunk in iter(lambda: f.read(128*sha512.block_size), b''):
-                 sha512.update(chunk)
-        newhash = sha512.hexdigest()
-
-    return newhash
-    
-
-
 def checkfile(filepath):
-    if len(orighash) == 32:
-        alghash = "md5"
+    hashlist = [[32, hashlib.md5()], [40, hashlib.sha1()], [64, hashlib.sha256()], [128, hashlib.sha512()], [56, hashlib.sha224()], [96, hashlib.sha384()]]
 
-    elif len(orighash) == 40:
-        alghash = "SHA1"
+    for i in hashlist :
+        if len(orighash) == i[0]:
+            alghash = i[1]
+            break
 
-    elif len(orighash) == 56:
-        alghash = "SHA224"
-
-    elif len(orighash) == 64:
-        alghash = "SHA256"
-
-    elif len(orighash) == 96:
-        alghash = "SHA384"
-
-    elif len(orighash) == 128:
-        alghash = "SHA512"
-
-    else:
-        print "\nDésolé je ne reconnai pas l'algorithme de hachage utilisé.\nVueillez vérifier la somme de contrôle fournit.\n"
-        exit()
-    
-    newhash = hasher(alghash, filepath)
+    with open(filepath,'rb') as f:
+        for chunk in iter(lambda: f.read(128*alghash.block_size), b''):
+             alghash.update(chunk)
+    newhash = alghash.hexdigest()
 
     return orighash, newhash, alghash
 
@@ -112,27 +50,27 @@ parser.add_option("-s", "--sum",
 
 
 if options.filepath and not options.algorithm:
-        
+
     if options.hashsum:
         orighash = options.hashsum
     else:
         orighash = raw_input("Entrez la somme de contrôle: ")
-    
+
     orighash, newhash, alghash = checkfile(options.filepath)
 
     if options.verbose:
-        print "\nVérification de " + options.filepath + " :\nSomme donnée\t\t: " + orighash + "\nSomme calculée\t\t: " + newhash + "\nAlgorithme utilisé\t: " + alghash
-        
+        print u"\nVérification de " + options.filepath + u" :\nSomme donnée\t\t: " + orighash + u"\nSomme calculée\t\t: " + newhash + u"\nAlgorithme utilisé\t: " + alghash
+
     if orighash == newhash:
-        print "\n\t==> Le fichier est bon.\n"
+        print options.filepath + ": OK"
 
     else:
-        print "\n\t==> Le fichier n'est pas bon.\n"
+        print options.filepath + u": ÉCHEC\nAVERTISSEMENT : la somme de contrôle ne concorde pas"
 
 
 elif options.filepath and options.algorithm:
     newhash = hasher(options.algorithm, options.filepath)
-    
+
     print newhash + "\t" + options.filepath
 
 
