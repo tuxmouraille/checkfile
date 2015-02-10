@@ -71,7 +71,9 @@ if options.filepath and not options.algorithm:
         orighash = options.hashsum
     else:
         orighash = raw_input("Entrez la somme de contrôle: ")
-
+    
+    orighash = orighash.lower()
+    
     orighash, newhash, alghash = checkfile(options.filepath, orighash)
 
     if options.verbose:
